@@ -7,9 +7,15 @@ use App\Models\Login;
 
 class LoginController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $logins = Login::all(); // Obtiene todos los registros de accesos
-        return view('logins.index', compact('logins'));
+        // Verifica si se quiere ver todos o solo los recientes
+        $modo = $request->query('modo', 'recientes');
+
+        $logins = $modo === 'todos'
+            ? Login::all()
+            : Login::latest()->take(5)->get();
+
+        return view('logins.index', compact('logins', 'modo'));
     }
 }

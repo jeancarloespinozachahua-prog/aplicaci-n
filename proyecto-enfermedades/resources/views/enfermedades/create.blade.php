@@ -7,7 +7,7 @@
 </head>
 <body class="bg-light p-4">
   <div class="container">
-    <h1 class="mb-4">Registrar Nueva Enfermedad</h1>
+    <h1 class="mb-4">Registrar sintomas</h1>
 
     @if ($errors->any())
       <div class="alert alert-danger">

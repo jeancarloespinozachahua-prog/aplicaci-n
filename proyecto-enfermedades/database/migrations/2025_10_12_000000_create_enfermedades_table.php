@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('enfermedades', function (Blueprint $table) {
-            $table->id(); // Clave primaria autoincremental
-            $table->string('nombre'); // Nombre de la enfermedad
-            $table->text('descripcion'); // Descripción detallada
-            $table->timestamps(); // Campos created_at y updated_at
-        });
+       Schema::create('enfermedades', function (Blueprint $table) {
+    $table->id();
+    $table->string('nombre');
+    $table->text('descripcion');
+    $table->text('sintomas')->nullable();
+    $table->timestamps();
+});
+
     }
 
     /**

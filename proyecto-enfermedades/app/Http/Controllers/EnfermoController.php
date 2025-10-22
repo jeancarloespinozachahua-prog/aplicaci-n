@@ -30,4 +30,5 @@ class EnfermoController extends Controller
 
         return redirect()->route('enfermedades.index')->with('success', 'Enfermedad registrada correctamente.');
     }
+    
 }
