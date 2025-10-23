@@ -17,7 +17,10 @@ class DiagnosticoController extends Controller
             return redirect()->route('login.formulario')->with('error', 'Debes iniciar sesión primero.');
         }
 
-        return view('diagnostico.index');
+        return view('diagnostico.index', [
+            'nombre' => session('usuario_nombre'),
+            'dni' => session('usuario_dni')
+        ]);
     }
 
     /**
@@ -59,12 +62,14 @@ class DiagnosticoController extends Controller
         return view('diagnostico.resultados', [
             'resultados' => $resultados,
             'sugerencias' => $sugerencias,
-            'sintomasSeleccionados' => $sintomasIngresados
+            'sintomasSeleccionados' => $sintomasIngresados,
+            'nombre' => session('usuario_nombre'),
+            'dni' => session('usuario_dni')
         ]);
     }
 
     /**
-     * Diagnóstico por IA con manejo de errores de conexión.
+     * Diagnóstico por IA usando OpenAI con manejo de errores.
      */
     public function detectarIA(Request $request)
     {
@@ -76,20 +81,31 @@ class DiagnosticoController extends Controller
             $sintomasTexto = trim($sintomasRaw);
         }
 
-        try {
-            $respuesta = Http::timeout(5)->post('http://localhost:5000/api/predict', [
-                'sintomas' => $sintomasTexto
-            ]);
+        $prompt = "Soy un médico experto. El paciente presenta los siguientes síntomas: $sintomasTexto. ¿Cuál podría ser el diagnóstico más probable?";
 
-            $resultados = [$respuesta->json()];
+        try {
+            $response = Http::withToken(config('services.openai.key'))
+                ->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => 'gpt-4',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'Eres un médico experto en diagnóstico clínico.'],
+                        ['role' => 'user', 'content' => $prompt]
+                    ]
+                ]);
+
+            $respuestaIA = $response->json()['choices'][0]['message']['content'] ?? 'Sin respuesta clara';
+
+            $resultados = [$respuestaIA];
         } catch (\Exception $e) {
-            $resultados = ['⚠️ No se pudo conectar con el motor de IA. Verifica que esté activo en el puerto 5000.'];
+            $resultados = ['⚠️ Error al conectar con OpenAI: ' . $e->getMessage()];
         }
 
         return view('diagnostico.resultados', [
             'resultados' => $resultados,
             'sugerencias' => [],
-            'sintomasSeleccionados' => is_array($sintomasRaw) ? $sintomasRaw : explode(',', $sintomasTexto)
+            'sintomasSeleccionados' => is_array($sintomasRaw) ? $sintomasRaw : explode(',', $sintomasTexto),
+            'nombre' => session('usuario_nombre'),
+            'dni' => session('usuario_dni')
         ]);
     }
 }

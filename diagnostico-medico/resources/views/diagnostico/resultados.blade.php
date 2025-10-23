@@ -95,6 +95,14 @@
 <div class="container mt-5">
     <h2 class="text-center text-info">🔍 Resultados del Diagnóstico</h2>
 
+    {{-- Información del paciente --}}
+    @if(isset($nombre) && isset($dni))
+        <div class="alert alert-info text-center">
+            <strong>👤 Paciente:</strong> {{ $nombre }}<br>
+            <strong>🆔 DNI:</strong> {{ $dni }}
+        </div>
+    @endif
+
     {{-- Mostrar síntomas seleccionados --}}
     @if(!empty($sintomasSeleccionados))
         <div class="alert alert-info text-center">
@@ -115,6 +123,7 @@
     @if(!empty($resultados))
         @foreach($resultados as $resultado)
             @if(is_array($resultado))
+                {{-- Diagnóstico tradicional --}}
                 <div class="card mt-3">
                     <div class="card-body">
                         <h5 class="card-title text-primary">🦠 {{ $resultado['nombre'] }}</h5>
@@ -123,8 +132,13 @@
                     </div>
                 </div>
             @else
-                <div class="alert alert-success mt-4 text-center">
-                    {{ $resultado }}
+                {{-- Diagnóstico por IA --}}
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">🤖 Diagnóstico por Inteligencia Artificial</h5>
+                        <p class="card-text">{{ $resultado }}</p>
+                        <p class="text-muted"><em>Este diagnóstico fue generado por un modelo médico de OpenAI.</em></p>
+                    </div>
                 </div>
             @endif
         @endforeach
@@ -178,7 +192,7 @@
     </div>
 
     <footer class="text-center mt-5 text-muted small">
-        
+        Sistema desarrollado por Jean Carlo Espinoza Chahua © {{ date('Y') }}
     </footer>
 </div>
 @endsection

@@ -4,13 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiagnosticoController;
 use App\Http\Controllers\LoginController;
 
-// 🔐 Login institucional (nombre + DNI)
+// 🔐 Login institucional (correo + contraseña)
 Route::get('/login', [LoginController::class, 'formulario'])->name('login.formulario');
 Route::post('/login', [LoginController::class, 'autenticar'])->name('login.autenticar');
 
+// 📝 Registro de nueva cuenta
+Route::get('/register', [LoginController::class, 'formularioRegistro'])->name('register.formulario');
+Route::post('/register', [LoginController::class, 'guardarRegistro'])->name('register.guardar');
+
 // 🏠 Panel post-login (usa sesión, no Auth)
 Route::get('/dashboard', function () {
-    // Verifica si hay sesión activa
     if (!session()->has('usuario_nombre') || !session()->has('usuario_dni')) {
         return redirect()->route('login.formulario')->with('error', 'Debes iniciar sesión primero.');
     }
@@ -18,9 +21,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
-// 🔚 Cierre de sesión (modo libre)
+// 🔚 Cierre de sesión
 Route::post('/logout', function () {
-    session()->flush(); // Elimina nombre y DNI
+    session()->flush();
     return redirect('/login');
 })->name('logout');
 
