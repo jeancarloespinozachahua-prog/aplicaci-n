@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Enfermedad;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use App\Models\Enfermedad;
 
 class DiagnosticoController extends Controller
 {
-    /**
-     * Muestra el formulario de diagnóstico solo si hay sesión activa.
-     */
+    // 🔹 Muestra el formulario de diagnóstico
     public function index()
     {
         if (!session()->has('usuario_nombre') || !session()->has('usuario_dni')) {
@@ -23,9 +22,7 @@ class DiagnosticoController extends Controller
         ]);
     }
 
-    /**
-     * Diagnóstico tradicional basado en coincidencias de síntomas.
-     */
+    // 🔹 Diagnóstico tradicional por síntoma (excluye COVID)
     public function detectar(Request $request)
     {
         $sintomasRaw = $request->input('sintomas');
@@ -36,74 +33,105 @@ class DiagnosticoController extends Controller
             $sintomasIngresados = array_map('trim', explode(',', strtolower($sintomasRaw)));
         }
 
-        $enfermedades = Enfermedad::all();
-        $resultados = [];
-        $sugerencias = [];
+        $enfermedades = Enfermedad::where('nombre', 'not like', '%covid%')->get(); // ❌ Excluye COVID
+        $diagnosticoPorSintoma = [];
 
-        foreach ($enfermedades as $enfermedad) {
-            $sintomasEnfermedad = array_map('trim', explode(',', strtolower($enfermedad->sintomas)));
-            $coincidencias = array_intersect($sintomasIngresados, $sintomasEnfermedad);
+        foreach ($sintomasIngresados as $sintoma) {
+            $relacionadas = [];
 
-            if (count($coincidencias) >= 2) {
-                $resultados[] = [
-                    'nombre' => $enfermedad->nombre,
-                    'descripcion' => $enfermedad->descripcion,
-                    'coincidencias' => implode(', ', $coincidencias)
-                ];
-            } elseif (count($coincidencias) === 1) {
-                $sugerencias[] = [
-                    'nombre' => $enfermedad->nombre,
-                    'descripcion' => $enfermedad->descripcion,
-                    'coincidencias' => implode(', ', $coincidencias)
-                ];
+            foreach ($enfermedades as $enfermedad) {
+                $sintomasEnfermedad = array_map('trim', explode(',', strtolower($enfermedad->sintomas)));
+
+                if (in_array($sintoma, $sintomasEnfermedad)) {
+                    $relacionadas[] = [
+                        'nombre' => $enfermedad->nombre,
+                        'descripcion' => $enfermedad->descripcion,
+                        'medicamento' => $enfermedad->medicamento ?? 'Consultar médico'
+                    ];
+                }
             }
+
+            $diagnosticoPorSintoma[] = [
+                'sintoma' => ucfirst($sintoma),
+                'enfermedades' => $relacionadas
+            ];
         }
 
         return view('diagnostico.resultados', [
-            'resultados' => $resultados,
-            'sugerencias' => $sugerencias,
+            'diagnosticoPorSintoma' => $diagnosticoPorSintoma,
             'sintomasSeleccionados' => $sintomasIngresados,
             'nombre' => session('usuario_nombre'),
             'dni' => session('usuario_dni')
         ]);
     }
 
-    /**
-     * Diagnóstico por IA usando OpenAI con manejo de errores.
-     */
+    // 🔹 Diagnóstico por IA con formato estructurado
     public function detectarIA(Request $request)
     {
         $sintomasRaw = $request->input('sintomas');
 
         if (is_array($sintomasRaw)) {
-            $sintomasTexto = implode(', ', array_map('trim', $sintomasRaw));
+            $sintomasLista = array_map('trim', $sintomasRaw);
         } else {
-            $sintomasTexto = trim($sintomasRaw);
+            $sintomasLista = array_map('trim', explode(',', $sintomasRaw));
         }
 
-        $prompt = "Soy un médico experto. El paciente presenta los siguientes síntomas: $sintomasTexto. ¿Cuál podría ser el diagnóstico más probable?";
+        $resultados = [];
+        $apiKey = config('services.openai.key');
 
-        try {
-            $response = Http::withToken(config('services.openai.key'))
-                ->post('https://api.openai.com/v1/chat/completions', [
-                    'model' => 'gpt-4',
+        if (empty($apiKey)) {
+            return back()->with('error', '⚠️ La clave de OpenAI no está configurada correctamente.');
+        }
+
+        foreach ($sintomasLista as $sintoma) {
+            $prompt = "Actúa como un médico clínico experto. El paciente presenta el siguiente síntoma: $sintoma. 
+Responde en el siguiente formato estructurado:
+
+🩺 Enfermedad probable: [Nombre de la enfermedad]
+💊 Medicamento recomendado: [Nombre comercial o genérico]
+📌 Observación clínica: [Breve nota profesional sobre el tratamiento o seguimiento]
+
+No incluyas saludos ni explicaciones fuera de ese formato.";
+
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json',
+                ])->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => 'gpt-3.5-turbo',
                     'messages' => [
                         ['role' => 'system', 'content' => 'Eres un médico experto en diagnóstico clínico.'],
                         ['role' => 'user', 'content' => $prompt]
-                    ]
+                    ],
+                    'temperature' => 0.7,
+                    'max_tokens' => 500
                 ]);
 
-            $respuestaIA = $response->json()['choices'][0]['message']['content'] ?? 'Sin respuesta clara';
+                if ($response->failed()) {
+                    $respuestaIA = "⚠️ Error en la respuesta de OpenAI: " . ($response->json()['error']['message'] ?? 'Desconocido');
+                } else {
+                    $respuestaIA = $response->json()['choices'][0]['message']['content'] ?? '';
+                    if (empty($respuestaIA) || Str::contains($respuestaIA, ['sin respuesta', 'no se pudo'])) {
+                        $respuestaIA = "No se pudo determinar una enfermedad clara para este síntoma.";
+                    }
+                }
 
-            $resultados = [$respuestaIA];
-        } catch (\Exception $e) {
-            $resultados = ['⚠️ Error al conectar con OpenAI: ' . $e->getMessage()];
+                $resultados[] = [
+                    'sintoma' => ucfirst($sintoma),
+                    'respuesta' => $respuestaIA
+                ];
+            } catch (\Exception $e) {
+                $resultados[] = [
+                    'sintoma' => ucfirst($sintoma),
+                    'respuesta' => '⚠️ Error al conectar con OpenAI: ' . $e->getMessage()
+                ];
+            }
         }
 
         return view('diagnostico.resultados', [
             'resultados' => $resultados,
             'sugerencias' => [],
-            'sintomasSeleccionados' => is_array($sintomasRaw) ? $sintomasRaw : explode(',', $sintomasTexto),
+            'sintomasSeleccionados' => $sintomasLista,
             'nombre' => session('usuario_nombre'),
             'dni' => session('usuario_dni')
         ]);

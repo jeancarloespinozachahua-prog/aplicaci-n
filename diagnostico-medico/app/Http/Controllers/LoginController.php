@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class LoginController extends Controller
 {
     /**
-     * Muestra el formulario de login.
+     * Muestra el formulario de acceso libre.
      */
     public function formulario()
     {
@@ -17,59 +15,29 @@ class LoginController extends Controller
     }
 
     /**
-     * Procesa el login por correo y contraseña.
+     * Inicia sesión sin correo ni contraseña.
      */
-    public function autenticar(Request $request)
+    public function accesoLibre(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $usuario = Auth::user();
-
-            // Guardar datos en sesión
-            session([
-                'usuario_nombre' => $usuario->name,
-                'usuario_dni' => $usuario->dni
-            ]);
-
-            return redirect()->route('diagnostico.index');
-        }
-
-        return redirect()->route('login.formulario')->with('error', 'Credenciales incorrectas.');
-    }
-
-    /**
-     * Muestra el formulario de registro.
-     */
-    public function formularioRegistro()
-    {
-        return view('auth.register');
-    }
-
-    /**
-     * Procesa el registro de nueva cuenta.
-     */
-    public function guardarRegistro(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'dni' => 'required|string|max:20',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-        ]);
-
-        $usuario = User::create([
-            'name' => $request->name,
-            'dni' => $request->dni,
-            'email' => $request->email,
-            'password' => bcrypt($request->password), // Aquí se usa bcrypt directamente
-        ]);
+        // Puedes personalizar el nombre y DNI aquí o pedirlos en el formulario
+        $nombre = $request->input('nombre', 'Usuario Invitado');
+        $dni = $request->input('dni', '00000000');
 
         session([
-            'usuario_nombre' => $usuario->name,
-            'usuario_dni' => $usuario->dni
+            'usuario_nombre' => $nombre,
+            'usuario_dni' => $dni
         ]);
 
+        // Redirige directamente al diagnóstico médico
         return redirect()->route('diagnostico.index');
+    }
+
+    /**
+     * Cierra sesión.
+     */
+    public function salir()
+    {
+        session()->flush();
+        return redirect()->route('login.formulario')->with('error', 'Sesión finalizada.');
     }
 }

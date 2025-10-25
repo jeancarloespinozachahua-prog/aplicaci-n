@@ -54,9 +54,9 @@
         border-color: #555;
     }
 
-    .dark-mode .btn-primary {
-        background-color: #1976d2;
-        border-color: #1976d2;
+    .dark-mode .btn-success {
+        background-color: #43a047;
+        border-color: #43a047;
     }
 
     .register-link {
@@ -76,8 +76,6 @@
 </style>
 
 <div class="container mt-5" style="max-width: 400px;">
-    
-
     {{-- Avatar encantador --}}
     <div class="text-center">
         <img src="https://tse4.mm.bing.net/th/id/OIP.i7BqEaCyeS9uP5smpZWTgAHaE8?pid=Api&P=0&h=180"
@@ -86,7 +84,7 @@
 
     {{-- Tarjeta de acceso --}}
     <div class="login-card">
-        <h2 class="text-center text-primary mb-4">🔐 Login</h2>
+        <h2 class="text-center text-primary mb-4">🔓 Acceso libre</h2>
 
         @if(session('error'))
             <div class="alert alert-danger text-center">
@@ -94,27 +92,12 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('login.autenticar') }}">
+        <form method="POST" action="{{ route('login.libre') }}">
             @csrf
-
-            <div class="mb-3">
-                <label for="email">📧 Correo electrónico</label>
-                <input type="email" name="email" id="email" class="form-control" required autofocus>
-            </div>
-
-            <div class="mb-3">
-                <label for="password">🔑 Contraseña</label>
-                <input type="password" name="password" id="password" class="form-control" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">🔓 Ingresar al sistema</button>
+            <input type="text" name="nombre" placeholder="Nombre completo" required class="form-control mb-2">
+            <input type="text" name="dni" placeholder="DNI" required class="form-control mb-3">
+            <button type="submit" class="btn btn-success w-100">🔓 Entrar al sistema</button>
         </form>
-
-        {{-- Enlace para crear cuenta --}}
-        <div class="register-link">
-            ¿No tienes cuenta?
-            <a href="{{ route('register.formulario') }}">📝 Crear nueva cuenta</a>
-        </div>
     </div>
 
     {{-- Botón de modo oscuro --}}
@@ -123,18 +106,8 @@
     </div>
 
     {{-- Pie institucional --}}
-    <div class="footer-note">
-        Sistema desarrollado por <strong>Jean Carlo Espinoza Chahua</strong><br>
+   
         <small>© {{ date('Y') }} Diagnóstico Médico | Todos los derechos reservados</small>
     </div>
 </div>
-
-{{-- Animación de carga al enviar --}}
-<script>
-    document.querySelector('form').addEventListener('submit', function() {
-        const btn = this.querySelector('button[type="submit"]');
-        btn.innerHTML = '🔄 Verificando...';
-        btn.disabled = true;
-    });
-</script>
 @endsection

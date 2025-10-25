@@ -16,8 +16,6 @@
         @yield('content')
     </main>
 
-    <footer class="text-center text-muted py-3">
-        <small>Sistema institucional desarrollado por Jean Carlo Espinoza Chahua</small>
-    </footer>
+  
 </body>
 </html>

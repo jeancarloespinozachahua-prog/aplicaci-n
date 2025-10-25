@@ -4,13 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiagnosticoController;
 use App\Http\Controllers\LoginController;
 
-// 🔐 Login institucional (correo + contraseña)
+// 🔓 Acceso libre (solo nombre y DNI)
 Route::get('/login', [LoginController::class, 'formulario'])->name('login.formulario');
-Route::post('/login', [LoginController::class, 'autenticar'])->name('login.autenticar');
+Route::post('/login-libre', [LoginController::class, 'accesoLibre'])->name('login.libre');
 
-// 📝 Registro de nueva cuenta
-Route::get('/register', [LoginController::class, 'formularioRegistro'])->name('register.formulario');
-Route::post('/register', [LoginController::class, 'guardarRegistro'])->name('register.guardar');
+// 🔚 Cierre de sesión usando método del controlador
+Route::get('/logout', [LoginController::class, 'salir'])->name('logout');
 
 // 🏠 Panel post-login (usa sesión, no Auth)
 Route::get('/dashboard', function () {
@@ -20,12 +19,6 @@ Route::get('/dashboard', function () {
 
     return view('dashboard');
 })->name('dashboard');
-
-// 🔚 Cierre de sesión
-Route::post('/logout', function () {
-    session()->flush();
-    return redirect('/login');
-})->name('logout');
 
 // 🩺 Diagnóstico médico
 Route::get('/diagnostico', [DiagnosticoController::class, 'index'])->name('diagnostico.index');
