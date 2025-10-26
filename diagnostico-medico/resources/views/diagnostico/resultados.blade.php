@@ -75,17 +75,28 @@
             </ul>
         </div>
 
-        @if(isset($resultados) && count($resultados) > 0)
         <div class="alert alert-info">
-            <h5 class="mb-2">🧠 Diagnóstico con IA:</h5>
-            @foreach ($resultados as $item)
-                <div class="sintoma-box">
-                    <strong>🩺 Síntoma:</strong> {{ $item['sintoma'] }}<br>
-                    <strong>Respuesta médica:</strong> {!! nl2br(e($item['respuesta'])) !!}
-                </div>
-            @endforeach
+    <h5 class="mb-2">🧠 Diagnóstico con IA:</h5>
+    @foreach ($sintomasSeleccionados as $sintoma)
+        @php
+            $clave = strtolower($sintoma);
+            $info = $analisisIA[$clave] ?? null;
+        @endphp
+
+        <div class="sintoma-box">
+            @if ($info)
+                <h5 class="text-primary">{{ $info[0] }} {{ $info[1] }}</h5>
+                <p><strong>🧠 Análisis IA:</strong> {{ $info[2] }}</p>
+                <p><strong>🦠 Posibles causas:</strong> {{ $info[3] }}</p>
+                <p><strong>💊 Tratamiento sugerido:</strong> {{ $info[4] }}</p>
+                <p><strong>🩺 Recomendación:</strong> {{ $info[5] }}</p>
+            @else
+                <p class="text-muted">No se encontró análisis IA para el síntoma: {{ ucfirst($sintoma) }}</p>
+            @endif
         </div>
-        @endif
+    @endforeach
+</div>
+
 
         @php
             $tablaSintomas = [
