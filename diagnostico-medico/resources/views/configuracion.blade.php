@@ -1,8 +1,11 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="card shadow p-4">
-    <h3 class="text-primary">⚙️ Configuración</h3>
-    <p>Aquí podrás ajustar parámetros del sistema, personalizar la experiencia y definir opciones médicas.</p>
-</div>
-@endsection
+<ul>
+    <li><a href="{{ route('configuracion.nombre') }}">Editar nombre</a></li>
+    <li><a href="{{ route('configuracion.idioma') }}">Cambiar idioma</a></li>
+    <li><a href="{{ route('configuracion.tema') }}">Tema visual</a></li>
+</ul>
+...
+<ul>
+    <li><a href="{{ route('configuracion.datos') }}">Actualizar datos personales</a></li>
+    <li><a href="{{ route('configuracion.historial') }}">Historial clínico</a></li>
+    <li><a href="{{ route('configuracion.preferencias') }}">Preferencias de diagnóstico</a></li>
+</ul>

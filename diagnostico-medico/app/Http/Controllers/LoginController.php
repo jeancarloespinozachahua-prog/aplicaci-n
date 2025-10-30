@@ -19,13 +19,16 @@ class LoginController extends Controller
      */
     public function accesoLibre(Request $request)
     {
-        // Puedes personalizar el nombre y DNI aquí o pedirlos en el formulario
-        $nombre = $request->input('nombre', 'Usuario Invitado');
-        $dni = $request->input('dni', '00000000');
+        // Validación básica del formulario
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'dni' => 'required|string|max:20',
+        ]);
 
+        // Guarda los datos en sesión directamente desde el formulario
         session([
-            'usuario_nombre' => $nombre,
-            'usuario_dni' => $dni
+            'usuario_nombre' => $request->nombre,
+            'usuario_dni' => $request->dni,
         ]);
 
         // Redirige directamente al diagnóstico médico
@@ -33,11 +36,15 @@ class LoginController extends Controller
     }
 
     /**
-     * Cierra sesión.
+     * Cierra sesión y muestra vista de despedida con datos.
      */
     public function salir()
     {
+        $nombre = session('usuario_nombre');
+        $dni = session('usuario_dni');
+
         session()->flush();
-        return redirect()->route('login.formulario')->with('error', 'Sesión finalizada.');
+
+        return view('cerrar', compact('nombre', 'dni'));
     }
 }

@@ -1,0 +1,12 @@
+<?php
+
+return [
+    'welcome' => 'Bem-vindo',
+    'select_language' => 'Selecione seu idioma preferido',
+    'save_language' => 'Salvar idioma',
+    'language_saved' => 'Idioma salvo com sucesso',
+    'upload_history' => 'Enviar histórico clínico',
+    'select_file' => 'Selecione um arquivo PDF, DOC ou TXT',
+    'view_file' => 'Ver arquivo',
+    'file_uploaded' => 'Arquivo enviado com sucesso',
+];

@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="card shadow p-4">
-    <h3 class="text-primary">👋 Bienvenido a GlucoSense</h3>
-    <p>Este sistema te permite realizar diagnósticos médicos asistidos por IA o de forma tradicional.</p>
-    <p>Selecciona una opción en el menú lateral para comenzar.</p>
+<div class="container mt-5 text-center">
+    <h1>Bienvenido al Sistema de Diagnóstico Médico</h1>
+    <p>Este es el punto de entrada principal.</p>
+    <a href="{{ route('login.formulario') }}" class="btn btn-primary mt-3">🔐 Iniciar sesión con Google</a>
 </div>
 @endsection
