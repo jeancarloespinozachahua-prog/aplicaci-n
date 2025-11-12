@@ -15,12 +15,25 @@
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(to bottom right, #e3f2fd, #ffffff);
             background-attachment: fixed;
+            transition: background 0.3s ease;
+        }
+
+        .navbar {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
 
         #sidebar {
             transition: all 0.4s ease;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            background-color: #f8f9fa;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom, #f8f9fa, #e3f2fd);
+            border-right: 1px solid #dee2e6;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .hidden-sidebar {
@@ -44,10 +57,18 @@
             font-weight: 500;
             border-bottom: 1px solid #e0e0e0;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            margin-right: 8px;
         }
 
         .nav-link:hover {
-            background-color: #e0f7fa;
+            background-color: #d1ecf1;
+            color: #007bff;
             transform: translateX(5px);
         }
 
@@ -55,11 +76,16 @@
             background-color: #007bff;
             color: #fff;
             font-weight: bold;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
         }
 
         .card-header {
             font-weight: bold;
             font-size: 1.1rem;
+            background: linear-gradient(to right, #007bff, #00bcd4);
+            color: white;
+            border-bottom: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         #toggleMenu {
@@ -83,6 +109,41 @@
                 width: 100% !important;
             }
         }
+
+        /* Modo oscuro */
+        body.dark-mode {
+            background: linear-gradient(to bottom right, #1e1e1e, #2c2c2c);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .navbar {
+            background-color: #212121 !important;
+        }
+
+        body.dark-mode #sidebar {
+            background: linear-gradient(to bottom, #2c2c2c, #1e1e1e);
+            border-right: 1px solid #444;
+        }
+
+        body.dark-mode .nav-link {
+            color: #f0f0f0;
+            border-bottom: 1px solid #444;
+        }
+
+        body.dark-mode .nav-link:hover {
+            background-color: #333;
+            color: #80d8ff;
+        }
+
+        body.dark-mode .nav-link.active {
+            background-color: #2196f3;
+            color: #fff;
+        }
+
+        body.dark-mode .card-header {
+            background: linear-gradient(to right, #2196f3, #00acc1);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -100,7 +161,7 @@
                 <!-- Menú lateral -->
                 <div id="sidebar" class="col-md-3 p-0">
                     <div class="card border-0 rounded-0 h-100">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <span><i class="bi bi-gear-fill me-2"></i>Opciones del sistema</span>
                             <button id="toggleMenu" class="btn btn-sm btn-light text-primary">
                                 <i class="bi bi-chevron-left" id="toggleIcon"></i>
@@ -110,27 +171,27 @@
                             <ul class="nav flex-column">
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('diagnostico.index') ? 'active' : '' }}" href="{{ route('diagnostico.index') }}">
-                                        <i class="bi bi-house-door-fill me-2"></i>Inicio
+                                        <i class="bi bi-house-door-fill"></i>Inicio
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('configuracion') ? 'active' : '' }}" href="{{ route('configuracion') }}">
-                                        <i class="bi bi-sliders me-2"></i>Configuración
+                                        <i class="bi bi-sliders"></i>Configuración
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('perfil') ? 'active' : '' }}" href="{{ route('perfil') }}">
-                                        <i class="bi bi-person-circle me-2"></i>Perfil
+                                        <i class="bi bi-person-circle"></i>Perfil
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('soporte') ? 'active' : '' }}" href="{{ route('soporte') }}">
-                                        <i class="bi bi-life-preserver me-2"></i>Soporte
+                                        <i class="bi bi-life-preserver"></i>Soporte
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('cerrar') ? 'active' : '' }}" href="{{ route('cerrar') }}">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                                        <i class="bi bi-box-arrow-right"></i>Cerrar sesión
                                     </a>
                                 </li>
                             </ul>
@@ -178,13 +239,4 @@
                 mainContent.classList.remove('col-md-9');
                 mainContent.classList.add('col-md-12');
                 localStorage.setItem('menuOculto', 'true');
-            } else {
-                mainContent.classList.remove('col-md-12');
-                mainContent.classList.add('col-md-9');
-                localStorage.setItem('menuOculto', 'false');
-            }
-        });
-    </script>
-</body>
-</html>
-
+            } else

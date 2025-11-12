@@ -8,17 +8,21 @@ use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\SoporteController;
 
-// 🔐 Acceso con formulario
-Route::get('/login', [LoginController::class, 'formulario'])->name('login.formulario');
-Route::post('/login-libre', [LoginController::class, 'accesoLibre'])->name('login.libre'); // Puedes eliminar esta si ya no usas acceso libre
+// 🆓 Acceso libre con nombre y DNI
+Route::get('/login', [LoginController::class, 'formulario'])->name('login');
+Route::post('/login', [LoginController::class, 'accesoLibre'])->name('login.post');
+
+// 📝 Registro de cuenta
+Route::get('/register', [LoginController::class, 'registro'])->name('register');
+Route::post('/register', [LoginController::class, 'guardarRegistro'])->name('register.post');
 
 // 🔚 Cierre de sesión
-Route::get('/logout', [LoginController::class, 'salir'])->name('logout');
+Route::post('/logout', [LoginController::class, 'salir'])->name('logout');
 
-// 🏠 Panel post-login (usa sesión, no Auth)
+// 🏠 Panel post-login (usa sesión libre)
 Route::get('/dashboard', function () {
     if (!session()->has('usuario_nombre') || !session()->has('usuario_dni')) {
-        return redirect()->route('login.formulario')->with('error', 'Debes iniciar sesión primero.');
+        return redirect()->route('login')->with('error', 'Debes iniciar sesión primero.');
     }
 
     return view('dashboard');
@@ -27,11 +31,11 @@ Route::get('/dashboard', function () {
 // 🩺 Diagnóstico médico
 Route::get('/diagnostico', [DiagnosticoController::class, 'index'])->name('diagnostico.index');
 Route::post('/diagnostico', [DiagnosticoController::class, 'detectar'])->name('diagnostico.tradicional');
-Route::post('/diagnostico-ia', [DiagnosticoController::class, 'detectarIA'])->name('diagnostico.ia');
+Route::post('/diagnostico/urgencia', [DiagnosticoController::class, 'verificarUrgencia'])->name('diagnostico.urgencia');
 
 // 🌐 Redirección raíz al login
 Route::get('/', function () {
-    return redirect()->route('login.formulario');
+    return redirect()->route('login');
 });
 
 // 🌐 Vistas adicionales
@@ -69,3 +73,4 @@ Route::get('/soporte', function () {
 
 Route::get('/configuracion/soporte', [SoporteController::class, 'mostrar'])->name('soporte.mostrar');
 Route::post('/soporte/enviar', [SoporteController::class, 'enviar'])->name('soporte.enviar');
+Route::get('/login', [LoginController::class, 'formulario'])->name('login');

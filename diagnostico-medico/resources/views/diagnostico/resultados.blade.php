@@ -5,7 +5,7 @@
     :root {
         --color-primario-inicio: #0056b3;
         --color-primario-fin: #007bff;
-        --color-fondo-inicio: #e0f7fa;
+        --color-fondo-inicio: #58ebfeff;
         --color-fondo-fin: #f0f4ff;
         --color-texto: #333;
         --sombra-suave: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -20,7 +20,7 @@
     .card {
         box-shadow: var(--sombra-suave);
         border-radius: 8px;
-        background: linear-gradient(to right, #f0f4ff, #e0f7fa);
+        background: linear-gradient(to right, #5caaeeffff, #e0f7fa);
         border-left: 5px solid var(--color-primario-inicio);
     }
 
@@ -61,7 +61,7 @@
 
 <div class="container mt-4">
     <div class="card shadow p-4">
-        <h3 class="text-center card-title mb-3">🧠 Diagnóstico Médico</h3>
+        <h3 class="text-center card-title mb-3">🧠 Diagnóstico Médico Con IA</h3>
 
         <p><strong>👤 Paciente:</strong> {{ $nombre }}</p>
         <p><strong>🆔 DNI:</strong> {{ $dni }}</p>
@@ -75,54 +75,31 @@
             </ul>
         </div>
 
-        <div class="alert alert-info">
-    <h5 class="mb-2">🧠 Diagnóstico con IA:</h5>
-    @foreach ($sintomasSeleccionados as $sintoma)
-        @php
-            $clave = strtolower($sintoma);
-            $info = $analisisIA[$clave] ?? null;
-        @endphp
-
-        <div class="sintoma-box">
-            @if ($info)
-                <h5 class="text-primary">{{ $info[0] }} {{ $info[1] }}</h5>
-                <p><strong>🧠 Análisis IA:</strong> {{ $info[2] }}</p>
-                <p><strong>🦠 Posibles causas:</strong> {{ $info[3] }}</p>
-                <p><strong>💊 Tratamiento sugerido:</strong> {{ $info[4] }}</p>
-                <p><strong>🩺 Recomendación:</strong> {{ $info[5] }}</p>
-            @else
-                <p class="text-muted">No se encontró análisis IA para el síntoma: {{ ucfirst($sintoma) }}</p>
-            @endif
-        </div>
-    @endforeach
-</div>
-
-
         @php
             $tablaSintomas = [
-                'fiebre' => ['Gripe, infección viral o bacteriana', 'Paracetamol o ibuprofeno', 'Mantener hidratación y descanso'],
-                'diarrea' => ['Gastroenteritis, infección intestinal, intoxicación alimentaria', 'Suero oral, dieta blanda, evitar lácteos', 'Consultar si hay fiebre o deshidratación'],
-                'dificultad para respirar' => ['Asma, bronquitis, neumonía', 'Inhalador (si es asmático), atención médica', 'Ir a urgencias si empeora'],
-                'dolor en el pecho' => ['Angina, ansiedad, problema cardíaco o pulmonar', 'Emergencia médica inmediata', 'No automedicarse'],
-                'náuseas' => ['Gastritis, migraña, intoxicación alimentaria', 'Domperidona, metoclopramida (solo bajo receta)', 'Evitar comidas pesadas'],
-                'dolor de garganta' => ['Amigdalitis, faringitis, resfriado común', 'Ibuprofeno o pastillas para la garganta', 'Tomar líquidos tibios'],
-                'ojos rojos' => ['Conjuntivitis, alergia, fatiga visual', 'Gotas oftálmicas lubricantes o antialérgicas', 'No tocar los ojos'],
-                'dolor de cabeza' => ['Migraña, estrés, tensión, fiebre', 'Paracetamol o ibuprofeno', 'Descansar en lugar oscuro'],
-                'congestión nasal' => ['Resfriado, rinitis, alergia', 'Descongestionantes o vapores', 'Beber agua y usar suero fisiológico'],
-                'dolor muscular' => ['Gripe, esfuerzo físico, tensión muscular', 'Paracetamol o ibuprofeno', 'Reposar y masajear la zona'],
-                'mareos' => ['Hipoglucemia, presión baja, deshidratación', 'Comer algo dulce, hidratarse', 'Sentarse y descansar'],
-                'erupciones en la piel' => ['Alergia, dermatitis, sarampión', 'Cremas antihistamínicas o corticoides', 'No rascarse'],
-                'tos' => ['Gripe, bronquitis, alergia', 'Jarabe para la tos, miel con limón', 'Evitar fumar'],
-                'dolor abdominal' => ['Gastritis, colitis, gastroenteritis', 'Buscapina, dieta liviana', 'Evitar comidas grasosas'],
-                'pérdida del olfato' => ['Sinusitis, congestión nasal', 'Reposo, hidratación', 'Control médico si persiste'],
-                'palpitaciones' => ['Ansiedad, estrés, problema cardíaco', 'Relajación o atención médica', 'Evitar café o estimulantes'],
-                'fatiga' => ['Anemia, estrés, falta de sueño', 'Multivitamínicos, descanso', 'Dormir bien y alimentarse sano'],
-                'pérdida del gusto' => ['Sinusitis, alergia, congestión nasal', 'Reposo y control médico', 'Mantener higiene nasal']
+                'fiebre' => ['Infección viral o bacteriana', 'Paracetamol 500-750 mg cada 8 h, hidratación con agua o suero', 'Si supera 39°C, se acompaña de confusión o dificultad respiratoria'],
+                'diarrea' => ['Gastroenteritis, alimento en mal estado', 'Suero de rehidratación oral, dieta blanda (arroz, pollo, plátano), evitar lácteos y fritos', 'Si hay diarrea con sangre, deshidratación o más de 3 días sin mejorar'],
+                'dificultad para respirar' => ['Infección pulmonar, crisis asmática', 'Sentarse, respirar lento, si tiene inhalador usarlo; no automedicar antibióticos', 'Urgente siempre. Llamar a emergencia o ir al hospital'],
+                'dolor en el pecho' => ['Tensión muscular o afección cardíaca', 'Reposo, respiración lenta', 'Urgente si es fuerte, aprieta, se va al brazo o mandíbula'],
+                'náuseas' => ['Gastritis o infección gastrointestinal', 'Manzanilla, jengibre natural, Omeprazol 20 mg en ayunas por 3 días', 'Si vomita sangre, no retiene líquidos, o dura >48h'],
+                'dolor de garganta' => ['Amigdalitis viral o bacteriana', 'Gárgaras con agua tibia + sal, Ibuprofeno 400 mg cada 8 h', 'Si hay placas blancas, fiebre alta y dolor intenso (posible antibiótico médico)'],
+                'ojos rojos' => ['Conjuntivitis o alergia', 'Lavado con suero, compresa fría, gotas lubricantes', 'Si hay secreción purulenta o dolor fuerte'],
+                'dolor de cabeza' => ['Estrés, deshidratación, fiebre', 'Paracetamol o Ibuprofeno, tomar agua, descansar', 'Si es intenso y repentino o con visión borrosa'],
+                'congestión nasal' => ['Resfrío o alergia', 'Vapor de eucalipto, suero nasal, Loratadina 10 mg cada 24 h', 'Si dura más de 10 días con fiebre alta'],
+                'dolor muscular' => ['Infección viral o esfuerzo', 'Ibuprofeno 400 mg cada 8 h, reposo, hidratación', 'Si se acompaña de dificultad respiratoria o rigidez de cuello'],
+                'mareos' => ['Presión baja, deshidratación', 'Tomar agua, comer algo salado, levantarse lento', 'Si se desmaya o visión doble'],
+                'erupciones en la piel' => ['Alergia o reacción', 'Antihistamínico: Loratadina 10 mg diaria, no rascar', 'Si se acompaña de dificultad para respirar (urgente)'],
+                'tos' => ['Resfrío, irritación o infección pulmonar', 'Miel tibia, jengibre, jarabe expectorante, evitar humo', 'Si hay flema con sangre o falta de aire (urgente)'],
+                'dolor abdominal' => ['Indigestión, infección intestinal', 'Dieta blanda, evitar grasas, Buscapina si hay cólico', 'Si hay dolor fuerte en un solo lado o vómitos persistentes'],
+                'pérdida del olfato' => ['Infecciones virales', 'Hidratación, descanso, vapor nasal', 'Si se acompaña de fiebre alta + dificultad respiratoria'],
+                'pérdida del gusto' => ['Infecciones virales', 'Hidratación, descanso, vapor nasal', 'Si se acompaña de fiebre alta + dificultad respiratoria'],
+                'palpitaciones' => ['Ansiedad, deshidratación', 'Respiración lenta, tomar agua, evitar café', 'Si se acompaña de dolor en el pecho o desmayo (urgente)'],
+                'fatiga' => ['Falta de sueño, infección o anemia', 'Dormir 8h, hidratación, alimentación balanceada', 'Si es severa y sin causa aparente']
             ];
         @endphp
 
         <div class="alert alert-info mt-4">
-            <h5 class="mb-2">🧾 Tabla de síntomas, posibles enfermedades y tratamientos:</h5>
+            <h5 class="mb-2">🧾 Diagnóstico detallado por síntoma:</h5>
 
             @foreach ($sintomasSeleccionados as $sintoma)
                 @php
@@ -135,9 +112,9 @@
 
                     @if ($info)
                         <p>
-                            <strong>🦠 Posibles enfermedades:</strong> {{ $info[0] }}<br>
-                            <strong>💊 Tratamiento común (informativo):</strong> {{ $info[1] }}<br>
-                            <strong>🩺 Recomendaciones:</strong> {{ $info[2] }}
+                            <strong>🦠 Causas comunes:</strong> {{ $info[0] }}<br>
+                            <strong>💊 Qué puede tomar o hacer:</strong> {{ $info[1] }}<br>
+                            <strong>🚨 Cuándo debe ir urgente:</strong> {{ $info[2] }}
                         </p>
                     @else
                         <p class="text-muted">No se encontró información médica para este síntoma.</p>
@@ -151,8 +128,6 @@
         </div>
     </div>
 
-    <footer class="text-center mt-5 text-muted small">
-        Sistema desarrollado por Jean Carlo Espinoza Chahua © {{ date('Y') }}
-    </footer>
+   
 </div>
 @endsection

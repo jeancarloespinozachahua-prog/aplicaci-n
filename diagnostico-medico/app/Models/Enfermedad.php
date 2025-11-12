@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Enfermedad extends Model
 {
-    //
-    
+    protected $table = 'enfermedades';
+    protected $fillable = ['nombre', 'descripcion', 'medicamento', 'sintomas'];
 }

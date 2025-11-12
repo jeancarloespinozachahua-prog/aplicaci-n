@@ -1,113 +1,153 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
 <style>
-    body {
-        background: linear-gradient(to right, #e3f2fd, #fce4ec);
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: url('https://images.alphacoders.com/546/thumb-1920-546091.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f0f0;
+    overflow: hidden;
+  }
 
-    .login-card {
-        animation: fadeIn 0.6s ease-in-out;
-        background-color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        padding: 30px;
-    }
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+  }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+  .login-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    padding: 50px 30px;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeInUp 0.8s ease;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
 
-    .login-avatar {
-        width: 100px;
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        margin-bottom: 15px;
-    }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    input:focus {
-        box-shadow: 0 0 5px #2196f3;
-        border-color: #2196f3;
-    }
+  .login-avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 0 16px rgba(0,0,0,0.4);
+    margin-bottom: -50px;
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    z-index: 3;
+  }
 
-    .footer-note {
-        font-size: 0.9em;
-        color: #777;
-        margin-top: 20px;
-        text-align: center;
-    }
+  .form-control {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 10px 12px;
+    border-radius: 8px;
+    width: 90%;
+    color: #fff;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    transition: box-shadow 0.3s ease;
+  }
 
-    .dark-mode {
-        background: #121212 !important;
-        color: #f0f0f0;
-    }
+  .form-control::placeholder {
+    color: #ccc;
+  }
 
-    .dark-mode .login-card {
-        background-color: #1e1e1e;
-        color: #f0f0f0;
-    }
+  .form-control:focus {
+    box-shadow: 0 0 8px #00bcd4;
+    border-color: #00bcd4;
+    outline: none;
+  }
 
-    .dark-mode input {
-        background-color: #2c2c2c;
-        color: #fff;
-        border-color: #555;
-    }
+  .btn-success {
+    background: linear-gradient(to right, #00bcd4, #0097a7);
+    border: none;
+    font-weight: bold;
+    font-size: 1.05em;
+    padding: 12px;
+    border-radius: 10px;
+    color: #fff;
+    width: 90%;
+    transition: transform 0.2s ease;
+  }
 
-    .dark-mode .btn-success {
-        background-color: #43a047;
-        border-color: #43a047;
-    }
+  .btn-success:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(0,188,212,0.4);
+  }
 
-    .register-link {
-        margin-top: 15px;
-        text-align: center;
-    }
+  .footer-note {
+    font-size: 0.9em;
+    color: #ccc;
+    margin-top: 25px;
+    text-align: center;
+  }
 
-    .register-link a {
-        color: #007bff;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-    .register-link a:hover {
-        text-decoration: underline;
-    }
+  .alert {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ffdddd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
 </style>
 
-<div class="container mt-5" style="max-width: 400px;">
+<div class="login-container">
+  <div class="login-card position-relative">
     {{-- Avatar encantador --}}
-    <div class="text-center">
-        <img src="https://tse4.mm.bing.net/th/id/OIP.i7BqEaCyeS9uP5smpZWTgAHaE8?pid=Api&P=0&h=180"
-             alt="Avatar Médico" class="login-avatar">
+    <img src="https://tse4.mm.bing.net/th/id/OIP.i7BqEaCyeS9uP5smpZWTgAHaE8?pid=Api&P=0&h=180" alt="Avatar Médico" class="login-avatar">
+    <h2 class="text-center text-info mb-4 mt-5">🔐 Acceso al sistema</h2>
+
+    {{-- Mensaje de error de sesión --}}
+    @if(session('error'))
+      <div class="alert text-center">
+        {{ session('error') }}
+      </div>
+    @endif
+
+    {{-- Errores de validación --}}
+    @if($errors->any())
+      <div class="alert">
+        <ul class="mb-0">
+          @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    {{-- Formulario de acceso libre --}}
+    <form method="POST" action="{{ route('login.post') }}">
+      @csrf
+      <input type="text" name="nombre" placeholder="Nombre completo" required class="form-control">
+      <input type="text" name="dni" placeholder="DNI" required class="form-control">
+      <button type="submit" class="btn btn-success">🔓 Ingresar</button>
+    </form>
+
+    <div class="footer-note">
+      <small>© {{ date('Y') }} Diagnóstico Médico | Todos los derechos reservados</small>
     </div>
-
-    {{-- Tarjeta de acceso --}}
-    <div class="login-card">
-        <h2 class="text-center text-primary mb-4">🔓 Acceso libre</h2>
-
-        @if(session('error'))
-            <div class="alert alert-danger text-center">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login.libre') }}">
-            @csrf
-            <input type="text" name="nombre" placeholder="Nombre completo" required class="form-control mb-2">
-            <input type="text" name="dni" placeholder="DNI" required class="form-control mb-3">
-            <button type="submit" class="btn btn-success w-100">🔓 Entrar al sistema</button>
-        </form>
-    </div>
-
-    {{-- Botón de modo oscuro --}}
-    <div class="text-center mt-3">
-        <button class="btn btn-sm btn-outline-secondary" onclick="document.body.classList.toggle('dark-mode')">🌙 Modo oscuro</button>
-    </div>
-
-    {{-- Pie institucional --}}
-   
-        <small>© {{ date('Y') }} Diagnóstico Médico | Todos los derechos reservados</small>
-    </div>
+  </div>
 </div>
 @endsection
